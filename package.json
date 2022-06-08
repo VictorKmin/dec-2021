@@ -1,0 +1,8 @@
+{
+  "name": "dec-2021",
+  "version": "1.0.0",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "express": "^4.18.1"
+  }
+}
