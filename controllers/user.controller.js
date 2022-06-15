@@ -1,83 +1,63 @@
-const users = require("../dataBase/users");
+const User = require("../dataBase/User");
+const CError = require('../error/CustomError');
 
-function updateUser(req, res) {
+async function updateUser(req, res, next) {
   try {
-    users.push({
-      name: 'TEST',
-      age: Math.random() * 100
-    });
-
     res.status(201).json('Users was created');
   } catch (e) {
-    res.status(400).json(e.message || 'Unknown Error');
+    next(e);
   }
 }
 
-function getAllUsers(req, res) {
+async function getAllUsers(req, res, next) {
   try {
+    const users = await User.find();
+
     res.json(users);
-
   } catch (e) {
-    res.status(400).json(e.message || 'Unknown Error');
+    next(e);
   }
 }
 
-function getById(req, res) {
+async function getById(req, res, next) {
   try {
-    console.log(req.query);
+    const { userId = '' } = req.params;
 
-    const { model = '' } = req.query;
-
-    console.log('____________________');
-    console.log(model);
-    console.log('____________________');
-
-    const modelToFind = model.split(';');
-
-    console.log('************************************');
-    console.log(modelToFind);
-    console.log('************************************');
-
-    const userIndex = +req.params.userId;
-
-    if (isNaN(userIndex) || userIndex < 0) {
-      res.status(400).json('Please enter valid ID');
-      return;
+    if (userId.length !== 24) {
+      throw new CError('Mongo Id is not valid', 403);
     }
 
-    const user = users[userIndex];
+    const user = await User.findOne({ _id: userId });
 
     if (!user) {
-      res.status(404).json(`Use with ID ${userIndex} is not found`);
-      return;
+      throw new CError(`Use with ID ${userId} is not found`, 404);
     }
 
     res.json(user);
   } catch (e) {
-    res.status(400).json(e.message || 'Unknown Error');
+    next(e);
   }
 }
 
-function createUser(req, res) {
+async function createUser(req, res, next) {
   try {
-    console.log(req.body);
+    const user = await User.create(req.body);
 
-    res.status(201).json('Users was created');
+    res.status(201).json(user);
   } catch (e) {
-    res.status(400).json(e.message || 'Unknown Error');
+    next(e);
   }
 }
 
-function deleteUser(req, res) {
+async function deleteUser(req, res, next) {
   try {
-    users.push({
-      name: 'TEST',
-      age: Math.random() * 100
-    });
+    const { userId = '' } = req.params;
+
+    await User.deleteOne({ _id: userId });
 
     res.status(201).json('Users was created');
   } catch (e) {
-    res.status(400).json(e.message || 'Unknown Error');
+    next(e);
   }
 }
 
