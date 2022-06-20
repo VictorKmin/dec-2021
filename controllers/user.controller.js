@@ -1,5 +1,6 @@
 const User = require("../dataBase/User");
 const CError = require('../error/CustomError');
+const { hashPassword } = require("../services/password.service");
 
 async function updateUser(req, res, next) {
   try {
@@ -41,7 +42,9 @@ async function getById(req, res, next) {
 
 async function createUser(req, res, next) {
   try {
-    const user = await User.create(req.body);
+    const hashedPassword = await hashPassword(req.body.password);
+
+    const user = await User.create({...req.body, password: hashedPassword});
 
     res.status(201).json(user);
   } catch (e) {
