@@ -33,6 +33,23 @@ module.exports = {
     } catch (e) {
       next(e);
     }
-  }
+  },
 
+  checkIsUserPresent: async (req, res, next) => {
+    try {
+      const {email} = req.body;
+
+      const userByEmail = await User.findOne({email});
+
+      if (!userByEmail) {
+        throw new CError(`User not found`, 404);
+      }
+
+      req.user = userByEmail;
+
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
 }

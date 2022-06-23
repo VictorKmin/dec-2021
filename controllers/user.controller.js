@@ -58,7 +58,7 @@ async function deleteUser(req, res, next) {
 
     await User.deleteOne({ _id: userId });
 
-    res.status(201).json('Users was created');
+    res.status(204).json('Users was created');
   } catch (e) {
     next(e);
   }
