@@ -45,6 +45,8 @@ module.exports = {
         throw new CError(`User not found`, 404);
       }
 
+      // const resRedy = { ...userByEmail, appointment: [{}]};
+
       req.user = userByEmail;
 
       next();
