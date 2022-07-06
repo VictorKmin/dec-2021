@@ -1,4 +1,7 @@
 module.exports = {
+  NODE_ENV: process.env.NODE_ENV || 'local',
+  CORS_WHITE_LIST: process.env.CORS_WHITE_LIST || '',
+
   ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET || 'ats',
   REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET || 'rts',
   FORGOT_PASS_ACTION_SECRET: process.env.FORGOT_PASS_ACTION_SECRET || 'fg_pass',
