@@ -1,9 +1,11 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const expressFileUpload = require('express-fileupload');
 const swaggerUi = require('swagger-ui-express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const socketIO = require('socket.io');
 
 mongoose.connect('mongodb://localhost:27017/dec');
 
@@ -14,6 +16,42 @@ const cronRun = require("./cron");
 const swaggerJson = require("./swagger.json");
 
 const app = express();
+
+const server = http.createServer(app);
+
+const io = socketIO(server, { cors: 'http://localhost:63342' });
+
+io.on('connection', (socket) => {
+  console.log('__________________________');
+  console.log(socket.handshake.query);
+  console.log(socket.handshake.auth);
+  console.log('__________________________');
+
+  socket.on('sendMessage', (messageData) => {
+    console.log('Socket', socket.id, 'with auth token', socket.handshake.auth.token, 'send message', messageData);
+
+    // Emit to all users except sender
+    socket.broadcast.emit('message:received', {
+      user: 'Veronika',
+      message: 'Hello world'
+    });
+
+    setTimeout(() => {
+      io.emit('globalBroadcast', 'TEST SOCKET')
+    }, 2000)
+  });
+
+  socket.on('room:join', (joinInfo) => {
+    socket.join(joinInfo.roomId);
+
+    // // TO all room members
+    // io.to(joinInfo.roomId).emit('room:newMember', { id: socket.id });
+
+    // TO all room members except sender
+    socket.to(joinInfo.roomId).emit('room:newMember', { id: socket.id });
+  })
+
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -45,7 +83,7 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(5000, () => {
+server.listen(5000, () => {
   console.log('Server listen 5000');
   cronRun();
 });
